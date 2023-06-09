@@ -25,20 +25,21 @@ app.get("/api/hello", function (req, res) {
 });
 
 app.get("/api/whoami", (req, res) => {
-  const ipAddress = res.connection.localAddress;
-  const software = req.get("User-Agent");
-  const language1 = req.get("Accept-language").split(",")[2].split(";")[0];
-  const language2 = req.get("Accept-language").split(",")[1];
-  console.log(ipAddress);
+  try {
+    const ipaddress =
+      req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+    const language = req.headers["accept-language"];
+    const software = req.headers["user-agent"];
 
-  const language = language1 + "," + language2;
-  // Add more headers as needed
-
-  res.json({
-    ipAddress,
-    language,
-    software,
-  });
+    const userInfo = {
+      ipaddress,
+      language,
+      software,
+    };
+    res.json(userInfo);
+  } catch (error) {
+    res.json({ message: "error occured" });
+  }
 });
 
 // listen for requests :)
